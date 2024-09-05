@@ -1,16 +1,17 @@
 from Node import Node
 from os import system
+
+
 class Bfs:
     def __init__(self) -> None:
         pass
-    
-   
-    def loadMatrix(self,matrixName):
+
+    def loadMatrix(self, matrixName):
         self.initMatrix = []
         self.initPosition = None
         self.goalPosition = None
-        
-        with open(matrixName + '.txt', "+r") as file:
+
+        with open(matrixName + '.txt', "r") as file:
             rows = file.readlines()
             for i in range(len(rows)):
                 row = []
@@ -20,43 +21,42 @@ class Bfs:
                     if self.goalPosition is None and rows[i][j] == "Q":
                         self.goalPosition = (i, j)
                     row.append(rows[i][j])
-                
+
                 self.initMatrix.append(row)
-        print(self.initPosition)    
-            
+        print(self.initPosition)
+
     def run(self):
-        
-        initNode = Node(None,self.initPosition,self.initMatrix,self.goalPosition)
-        
+
+        initNode = Node(None, self.initPosition,
+                        self.initMatrix, self.goalPosition)
+
         queue = [initNode]
-        nodesVisited = []
-        
+        expandedPositions = set()
+
         while len(queue) != 0:
-            
-            currentNode:Node = queue.pop(0)
-            
-            if(currentNode.isGoal()):
-                return currentNode          
-             
-            childs:list =  currentNode.expand()
-                 
-            nodesVisited.append(currentNode.currentPosition)
-            
-            for child in childs:
-                if child.currentPosition not in nodesVisited:
+
+            currentNode: Node = queue.pop(0)
+
+            # evito expandir nodos que ya han sido expandidos
+            if (currentNode.currentPosition in expandedPositions):
+                continue
+
+            if (currentNode.isGoal()):
+                return currentNode
+
+            childs: list = currentNode.expand()
+
+            expandedPositions.add(currentNode.currentPosition)
+
+            for child in childs:  # evito crear hijos que ya han sido expandidos
+                if child.currentPosition not in expandedPositions:
                     queue.append(child)
-                    
-                
-            
-        raise ValueError('No existe solicion')  
 
-    
-    
-    
+        raise ValueError('No existe solicion')
 
-bfs =  Bfs()
+
+bfs = Bfs()
 bfs.loadMatrix('matriz2')
 
 goalNode = bfs.run()
 print(goalNode.currentPosition)
-
